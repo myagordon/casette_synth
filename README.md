@@ -6,4 +6,4 @@ Aduino_DAC code interfaces arduino nano with MCP4725 DAC to modulate specific vo
 
 To Do: Server to send serial commands to arduino nano.  
 
-**I got the idea for the tape synth from [schollz](url) who was inspired by Onde Magnétique amoung other people. The YouTube video ["How to Hack a Casette Player"](url) was also helper for understanding how to add voltage control to the casette, and code a midi controller to modulate voltages for each note.  
+**I got the idea for the tape synth from [schollz](url) who was inspired by Onde Magnétique among other people. The YouTube video ["How to Hack a Casette Player"](url) was also helper for understanding how to add voltage control to the casette, and code a midi controller to modulate voltages for each note.  
