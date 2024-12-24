@@ -2,9 +2,9 @@
 #include <Adafruit_MCP4725.h>
 
 const uint8_t DAC_ADDRESS = 0x62;
-const uint8_t PIN_OUT1 = 2;       // Output pin 1
-const uint8_t PIN_OUT2 = 3;       // Output pin 2
-const uint16_t MAX_DAC_VALUE = 4095; // Max DAC value w/ 12-bit resolution
+const uint8_t PIN_OUT1 = 2;       // output 1
+const uint8_t PIN_OUT2 = 3;       // output 2
+const uint16_t MAX_DAC_VALUE = 4095; // max DAC value w/ 12-bit resolution
 
 Adafruit_MCP4725 dac;
 String serialData = ""; // Buffer for serial input
@@ -15,13 +15,13 @@ void setup() {
 
   if (!dac.begin(DAC_ADDRESS)) {
     Serial.println("Error initializing DAC. Check connections.");
-    while (1); // Halt if DAC fails to initialize
+    while (1); // wait if DAC fails to initialize
   }
   
   pinMode(PIN_OUT1, OUTPUT);
   pinMode(PIN_OUT2, OUTPUT);
 
-  Serial.println("Setup complete. Ready for input.");
+  Serial.println("Setup complete. Ready for keyboard input.");
 }
 
 void loop() {
@@ -72,12 +72,8 @@ void processCommand(const String &command) {
   }
 }
 
-//encapsulates DAC voltage setting with range checking
+//encapsulates DAC voltage setting
 bool setVoltage(float voltage) {
-  if (voltage < 0 || voltage > 4.095) {
-    return false; // Voltage out of range
-  }
-  
   uint16_t dacValue = round(910.0 * voltage);
   dac.setVoltage(dacValue, false); // update DAC voltage
   return true;
