@@ -1,1 +1,84 @@
+#include <Wire.h>
+#include <Adafruit_MCP4725.h>
 
+const uint8_t DAC_ADDRESS = 0x62;
+const uint8_t PIN_OUT1 = 2;       // Output pin 1
+const uint8_t PIN_OUT2 = 3;       // Output pin 2
+const uint16_t MAX_DAC_VALUE = 4095; // Max DAC value w/ 12-bit resolution
+
+Adafruit_MCP4725 dac;
+String serialData = ""; // Buffer for serial input
+bool initialized = false;
+
+void setup() {
+  Serial.begin(9600);
+
+  if (!dac.begin(DAC_ADDRESS)) {
+    Serial.println("Error initializing DAC. Check connections.");
+    while (1); // Halt if DAC fails to initialize
+  }
+  
+  pinMode(PIN_OUT1, OUTPUT);
+  pinMode(PIN_OUT2, OUTPUT);
+
+  Serial.println("Setup complete. Ready for input.");
+}
+
+void loop() {
+  if (!initialized) {
+    initializeOutputs();
+    initialized = true;
+  }
+
+  if (Serial.available()) {
+    handleSerialInput();
+  }
+}
+
+//handles all initial setup of DAC and pins
+void initializeOutputs() {
+  dac.setVoltage(0, false); // Set initial DAC voltage to 0
+  digitalWrite(PIN_OUT1, LOW);
+  digitalWrite(PIN_OUT2, LOW);
+  Serial.println("Outputs initialized.");
+}
+
+//processes serial input and manages buffer
+void handleSerialInput() {
+  char ch = Serial.read();
+  serialData += ch;
+
+  if (ch == '\n') { // end command found
+    serialData.trim();
+    processCommand(serialData);
+    serialData = ""; // Clear buffer
+  }
+}
+
+//parses commands and directs them to appropriate handlers
+void processCommand(const String &command) {
+  if (command.startsWith("voltage")) {
+    String valueStr = command.substring(7).trim(); // get voltage value
+    float voltage = valueStr.toFloat();
+
+    if (setVoltage(voltage)) {
+      Serial.print("Voltage set to: ");
+      Serial.println(voltage, 3); 
+    } else {
+      Serial.println("Error: Voltage out of range.");
+    }
+  } else {
+    Serial.println("Unknown command.");
+  }
+}
+
+//encapsulates DAC voltage setting with range checking
+bool setVoltage(float voltage) {
+  if (voltage < 0 || voltage > 4.095) {
+    return false; // Voltage out of range
+  }
+  
+  uint16_t dacValue = round(910.0 * voltage);
+  dac.setVoltage(dacValue, false); // update DAC voltage
+  return true;
+}
